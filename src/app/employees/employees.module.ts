@@ -20,7 +20,7 @@ import { EmployeeDetailsComponent } from './employee-details/employee-details.co
 const routes: Routes = [
     {
         path: '',
-        component:EmployeesComponent
+        component: EmployeesComponent
     }
 ];
 

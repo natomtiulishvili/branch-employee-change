@@ -33,7 +33,9 @@ export class EmployeesComponent implements OnInit {
   }
 
   private handleDataInit(): void {
-    this.activatedRoute.data.subscribe(({ branches, employees }) => {
+    this.activatedRoute.data.pipe(
+      untilDestroyed(this)
+    ).subscribe(({ branches, employees }) => {
       this.branches = this.originalBranches = branches;
       this.employees = this.originalEmployees = employees
     });
@@ -59,19 +61,30 @@ export class EmployeesComponent implements OnInit {
     this._employeeService.selectedEmployee$.next(this.selectedEmployee);
   }
 
-  handleFilialeChange(newFilialNr: number): void {
-    const oldFiliale = this.originalBranches.find(b => b.filialNr === this.selectedEmployee?.filialNr);
-    const newFiliale = this.originalBranches.find(b => b.filialNr === newFilialNr);
-    if (oldFiliale) {
-      oldFiliale.employees = oldFiliale.employees?.filter(e => e.id !== this.selectedEmployee?.id);
+  handleEmployeeChange(response: {employee: Employee, filialeNr: number}): void {
+    if (response.filialeNr) {
+      let newFilialNr = response.filialeNr;
+      const oldFiliale = this.originalBranches.find(b => b.filialNr === this.selectedEmployee?.filialNr);
+      const newFiliale = this.originalBranches.find(b => b.filialNr === newFilialNr);
+      if (oldFiliale) {
+        oldFiliale.employees = oldFiliale.employees?.filter(e => e.id !== this.selectedEmployee?.id);
+      }
+      if (newFiliale) {
+        this.selectedEmployee.filialNr = newFiliale.filialNr;
+        this.selectedEmployee.filiale = structuredClone(newFiliale);
+        delete this.selectedEmployee.filiale.employees;
+        newFiliale.employees = [...newFiliale.employees || [], this.selectedEmployee];
+      }
+      this.selectedBranchNumber = newFilialNr;
     }
-    if (newFiliale) {
-      this.selectedEmployee.filialNr = newFiliale.filialNr;
-      this.selectedEmployee.filiale = structuredClone(newFiliale);
-      delete this.selectedEmployee.filiale.employees;
-      newFiliale.employees = [...newFiliale.employees || [], this.selectedEmployee];
+
+    const employeeSwitch = (e: Employee) => {
+      if (this.selectedEmployee.id === e.id) return this.selectedEmployee;
+      return e;
     }
-    this.selectedBranchNumber = newFilialNr;
+
+    this.employees = this.employees.map(e => employeeSwitch(e));
+    this.originalEmployees = this.originalEmployees.map(e => employeeSwitch(e));
   }
 
   displayEmployeesNamesInSearchField(employee: Employee): string {

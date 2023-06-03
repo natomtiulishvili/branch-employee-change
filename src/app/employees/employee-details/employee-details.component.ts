@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./employee-details.component.scss']
 })
 export class EmployeeDetailsComponent implements OnInit {
-  @Output() handleFilialeChange = new EventEmitter<number>();
+  @Output() handleEmployeeChange = new EventEmitter<{employee: Employee, filialeNr: number}>();
 
   employee!: Employee;
   form!: FormGroup;
@@ -26,7 +26,9 @@ export class EmployeeDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ branches }) => {
+    this.activatedRoute.data.pipe(
+      untilDestroyed(this)
+    ).subscribe(({ branches }) => {
       this.branches = this.originalBranches = branches;
     });
     this.handleSelectedEmployeeSubscription();
@@ -62,9 +64,14 @@ export class EmployeeDetailsComponent implements OnInit {
     if (this.form.valid) {
       this.employee.name = this.form.value.name || '';
       this.employee.vorname = this.form.value.vorname || '';
+      let newFilialeNr = 0;
       if (this.form.value.filiale.filialNr !== this.employee.filialNr) {
-        this.handleFilialeChange.emit(this.form.value.filiale.filialNr);
+        newFilialeNr = this.form.value.filiale.filialNr;
       }
+      this.handleEmployeeChange.emit({
+        employee: this.employee,
+        filialeNr: newFilialeNr
+      });
     }
   }
 

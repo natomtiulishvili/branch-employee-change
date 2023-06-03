@@ -4,7 +4,7 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Branch } from '../employees/employee';
 
-export const branchesResolver: ResolveFn<Observable<Branch[]>> = (route, state) => {
+export const branchesResolver: ResolveFn<Observable<Branch[]>> = () => {
   const service: EmployeeApiService = inject(EmployeeApiService);
   return service.getBranches();
 };
