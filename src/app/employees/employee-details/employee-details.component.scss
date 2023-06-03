@@ -1,0 +1,11 @@
+:host {
+    .employee-details {
+        height: 100%;
+    }
+
+    .field-controls {
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+    }
+}

@@ -1,0 +1,45 @@
+<div class="employees">
+  <mat-drawer-container class="employees-container">
+    <mat-drawer class="side-bar" mode="side" disableClose opened>
+      <form class="employees-search-form">
+        <mat-form-field class="full-width">
+          <mat-label>Search Employees</mat-label>
+          <input type="text"
+                 placeholder="Pick one"
+                 aria-label="name"
+                 matInput
+                 [formControl]="searchEmployeesControl"
+                 [matAutocomplete]="auto">
+          <mat-autocomplete (optionSelected)="handleEmployeeSearchChange($event.option.value)" [displayWith]="displayEmployeesNamesInSearchField" #auto="matAutocomplete">
+            <mat-option *ngFor="let option of employees" [value]="option">
+              {{option.name}} {{option.vorname}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </form>
+      <mat-accordion>
+        <mat-expansion-panel
+          *ngFor="let branch of originalBranches"
+          [expanded]="selectedBranchNumber === branch.filialNr"
+          (opened)="selectedBranchNumber = branch.filialNr">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{branch.ansichtName}}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-action-list>
+            <button mat-list-item
+                    *ngFor="let employee of branch.employees"
+                    [activated]="selectedEmployee.id === employee.id"
+                    (click)="setSelectedEmployee(employee)">
+              {{employee.name}} {{employee.vorname}}
+            </button>
+          </mat-action-list>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-drawer>
+    <mat-drawer-content>
+      <app-employee-details (handleFilialeChange)="handleFilialeChange($event)"></app-employee-details>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</div>
